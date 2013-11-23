@@ -1,6 +1,5 @@
 (ql:quickload "cl-json")
 (ql:quickload "drakma")
-(ql:quickload "cl-ppcre")
 (defpackage :docker (:use :cl)
 	    (:export
 	     create-container
@@ -79,101 +78,14 @@
 (defun attach-container (container-id)
    (drakma:http-request (format nil "~a/containers/~a/attach?stream=1&stderr=1&stdout=1" *url* container-id)
 			:method :post
-			;;:content-type "application/json"
-			;;:content "{}"
-			;;:want-stream t
 			:accept "application/vnd.docker.raw-stream"))
 
 (defun start-container (container-id)
    (drakma:http-request (format nil "~a/containers/~a/start" *url* container-id)
-			:method :post
-			;;:content-type "application/json"
-			;;:content "{}"
-			;;:accept "text/plain"
-			))
+			:method :post))
 
 (defun inspect-container (container-id)
-  (json:decode-json-from-string (drakma:http-request (format nil "~a/containers/~a/json" *url* container-id)
-						     :accept "application/json"
-						     )))
-
-
-
-
-
-
-
-(drakma:http-request (format nil "~a/containers/create" *url*)
-		     :method :post
-		     :content-type "application/json"
-		     :content (json:encode-json-to-string
-				    '(("Hostname" . "")
-				      ("User" . "")
-				      ("Memory" . 0)
-				      ("MemorySwap" . 0)
-				      ("AttachStdin" . nil)
-				      ("AttachStdout" . t)
-				      ("AttachStderr" . t)
-				      ("PortSpecs" . nil)
-				      ("Privileged" . nil)
-				      ("Tty" . nil)
-				      ("OpenStdin" . nil)
-				      ("StdinOnce" . nil)
-				      ("Env" . nil)
-				      ("Cmd" . ("date"))
-				      ("Dns" . nil)
-				      ("Image" . "ubuntu:latest")
-				      ("Volumes" . ())
-				      ("VolumesFrom" . "")
-				      ("WorkingDir" . "")
-				      ))
-		     :parameters '(("name" . "testing")))
-
-(defun get-containers (&optional (format "json"))
   (json:decode-json-from-string
-   (drakma:http-request (format nil "~a/containers/json?all=1" *url*)
-			:method :get
-			:content-type "application/json"
-			:content (json:encode-json-to-string `((script . ,script)))
-			:accept "application/json")))
-
-(drakma:http-request "http://127.0.0.1:5555")
-(drakma:http-request "http://127.0.0.1:5555/containers/json?all=1&before=8dfafdbc3a40&size=1")
-(drakma:http-request "http://127.0.0.1:5555/containers/json?all=1")
-
-
-
-(drakma:http-request "http://127.0.0.1:5555/containers/create" :method :post
-		     :content-type "application/json"
-		     :content "{
-     \"Hostname\": \"\",
-     \"User\": \"\",
-     \"Memory\":0,
-     \"MemorySwap\":0,
-     \"AttachStdin\":false,
-     \"AttachStdout\":true,
-     \"AttachStderr\":true,
-     \"PortSpecs\":null,
-     \"Privileged\": false,
-     \"Tty\":false,
-     \"OpenStdin\":false,
-     \"StdinOnce\":false,
-     \"Env\":null,
-     \"Cmd\":[
-             \"/usr/bin/echo 5\"
-     ],
-     \"Dns\": null,
-     \"Image\": \"ubuntu:latest\",
-     \"Volumes\":{},
-     \"VolumesFrom\": \"\",
-     \"WorkingDir\": \"\",
-     \"AutoRemove\": true
-
-}"
-		     :parameters '(("name" . "testing")))
-
-(flexi-streams:octets-to-string #(123 34 73 100 34 58 34 48 56 52 101 53 51 51 53 49 97 98 57 34 125))
-
-(drakma:http-request "http://127.0.0.1:5555/images/json")
-
-(drakma:http-request "http://127.0.0.1:5555/images/create?fromImage=ubuntu" :method :post)
+   (drakma:http-request
+    (format nil "~a/containers/~a/json" *url* container-id)
+    :accept "application/json")))
