@@ -1,0 +1,20 @@
+#inputAreaContainer {
+    height: 70px;
+}
+
+#reviewAreaContainer {
+    height: 70px;
+}
+
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+}
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+.step {
+    width: 1000px;
+}

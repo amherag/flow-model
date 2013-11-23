@@ -1,0 +1,34 @@
+#menu {
+    height: 5%;
+}
+
+#project-files {
+    width: 500px;
+    float: left;
+}
+
+#control-panel {
+    width: 500px;
+    float: left;
+}
+
+#inputAreaContainer {
+    height: 15%;
+}
+
+#reviewAreaContainer {
+    height: 79%;
+}
+
+#projectAreaContainer {
+    height: 94%;
+}
+
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+}
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
