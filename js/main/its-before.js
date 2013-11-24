@@ -15,6 +15,16 @@ $(function() {
 	CodeMirror.keyMap.inputArea["Ctrl-Enter"]();
 	return false;
     });
+
+    $('.step')
+	.on('enterStep', function(event) {
+
+	})
+	.on('leaveStep', function(event) {
+	    inputArea.setValue("");
+	    reviewArea.setValue("");
+	});
+
 });
 
 

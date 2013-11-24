@@ -1,6 +1,7 @@
 var inputArea = CodeMirror.fromTextArea(
     document.getElementById("inputArea"),
-    {theme: "eclipse",
+    {lineNumbers: true,
+     theme: "eclipse",
      autofocus: true,
      lineWrapping: true,
      smartIndent: true,
@@ -11,8 +12,7 @@ var inputArea = CodeMirror.fromTextArea(
 
 var reviewArea = CodeMirror.fromTextArea(
     document.getElementById("reviewArea"),
-    {lineNumbers: true,
-     lineWrapping: true,
+    {lineWrapping: true,
      readOnly: "nocursor",
      theme: "eclipse",
      smartIndent: true,
@@ -21,6 +21,5 @@ var reviewArea = CodeMirror.fromTextArea(
 
 //set cursor on last line
 reviewArea.getDoc().setCursor(reviewArea.getDoc().lastLine(), reviewArea.getTokenAt({line: reviewArea.getDoc().lastLine(), char: 0}, true).end);
-
 
 

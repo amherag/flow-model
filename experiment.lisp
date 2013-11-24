@@ -78,7 +78,8 @@
 
 (restas:define-route its ("its" :method :post)
   (alexandria:if-let ((username (session-value :user))
-		      (code-string (post-parameter "code")))
+		      (code-string (post-parameter "code"))
+		      (active-step (post-parameter "step")))
     (docker:run-container (docker:create-container :command code-string))))
 
 (restas:define-route experiment ("/experiment")
@@ -103,19 +104,36 @@
 	       (:body
 		(:div :class "container-liquid"
 		      (:div :class "row-fluid"
-			    (:div :class "span12"
-				  (:div :id "jmpress"
-					
-					))))
+			    (:div :id "jmpress"
+				  (dolist (x (load-steps))
+				    (format out x))))
+		      (:div :class "row-fluid"
+			    "Presiona Ctrl+Enter o el bot&oacute;n \"Evaluar\" para evaluar tu c&oacute;digo.")
+		      (:div :class "row-fluid"
+
+			    (:div :class "span6" :id "inputAreaContainer"
+				  (:textarea :id "inputArea" :name "codeArea" ""))
+			    (:div :class "span6" :id "reviewAreaContainer"
+				  (:textarea :id "reviewArea" :name "reviewArea"))))
 		(:script :src "/js/main/its.js"))))
       (restas:redirect *fail-authenticated-user-uri*)))
 
 (defun load-steps ()
-  (let ((exercises (model:get-exercises)))
+  (let ((exercises (model:get-exercises))
+	(x -2000))
     (mapcar (lambda (exercise)
-	      (list (format nil "<h1>~a</h1>" (first exercise))
-		    (format nil "<p>~a</p>" (second exercise))
-		    (if (string= (third exercise))))) exercises)))
+	      (let ((title (first exercise))
+		    (content (second exercise))
+		    (coding? (third exercise)))
+		(cl-who:with-html-output-to-string (out)
+		  (:div :class "step" :data-x (incf x 2000) :data-y 0
+			(format out "~a~a"
+				(format nil "<h1>~a</h1>" title)
+				(format nil "<p>~a</p>" content)))
+		  )))
+	    exercises)))
+
+;;(load-steps)
 
 #|
 (:div :class "step"
