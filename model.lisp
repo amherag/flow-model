@@ -4,6 +4,7 @@
 	    (:export connect-db
 		     disconnect-db
 		     get-user/password
+		     get-solution
 		     get-exercises
 		     post-user
 		     hash-password
@@ -25,13 +26,19 @@
   (sqlite:execute-non-query *db* "INSERT INTO users (username, password) VALUES (?, ?)"
 			    username (hash-password password)))
 
-(defun post-exercise (title exercise &optional (coding nil))
-  (sqlite:execute-non-query *db* "INSERT INTO exercises (title, content, coding) VALUES (?, ?, ?)"
-			    title exercise (if coding "true" "false")))
+(defun post-exercise (title exercise solution &optional (coding nil))
+  (sqlite:execute-non-query *db* "INSERT INTO exercises (title, content, coding, solution) VALUES (?, ?, ?, ?)"
+			    title exercise (if coding "true" "false") solution))
 
 ;;(post-user "amherag" "password")
-;;(post-exercise "prueba1" "hola hola hola" t)
-;;(post-exercise "prueba2" "adios adios adios" nil)
+;;(post-exercise "Ejercicio 1" "Crea una lista de tres numeros." "(fn (x) (and (list? x) (for-all number? x) (= (length x) 3)))" t)
+;;(post-exercise "Ejercicio 2" "Crea una funcion que sume dos numeros." "(fn (x) (and (lambda? x) (= (x 5 7) (+ 5 7))))" nil)
+
+
+(defun get-solution (step)
+  (sqlite:execute-single *db* "SELECT solution FROM exercises WHERE step = ?" step))
+
+;;(get-solution "#step-1")
 
 (defun get-exercises ()
   "It gets ALL the exercises for now."
@@ -56,6 +63,6 @@
 
 (defun init-db ()
   (sqlite:execute-non-query *db* "CREATE TABLE users(username text, password text)")
-  (sqlite:execute-non-query *db* "CREATE TABLE exercises(title text, content text, coding bool)"))
+  (sqlite:execute-non-query *db* "CREATE TABLE exercises(step text, title text, content text, coding bool, solution text)"))
 
 ;;(init-db)

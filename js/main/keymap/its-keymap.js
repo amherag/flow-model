@@ -5,11 +5,12 @@
 
     CodeMirror.keyMap.inputArea["Ctrl-Enter"] = function(cm)
     {
+	//alert($("activestep"));
 	$.ajax({type: "post",
 		url: "/its",
 		data: {
 		    code: cm.getValue(),
-		    step: $("#jmpress").jmpress('active').selector
+		    step: $("#activestep").val()
 		},
 		success: function (data) {
 		    reviewArea.setValue((data).trim());

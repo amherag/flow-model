@@ -1,6 +1,7 @@
 $(function() {
+
     $('#jmpress').jmpress();
-    
+
     $(".next").click(function(event){
 	$('#jmpress').jmpress('next');
 	return false;
@@ -21,9 +22,14 @@ $(function() {
 
 	})
 	.on('leaveStep', function(event) {
+
 	    inputArea.setValue("");
 	    reviewArea.setValue("");
 	});
+
+    //$("#jmpress").jmpress('setActive', function(step, eventData) {alert(step.toSource())} );
+    //alert($("#jmpress").jmpress('activeClass'));
+    //alert($("#jmpress").jmpress('active').selector);
 
 });
 

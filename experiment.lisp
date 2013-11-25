@@ -77,10 +77,14 @@
   (restas:redirect *fail-authenticated-user-uri*))
 
 (restas:define-route its ("its" :method :post)
-  (alexandria:if-let ((username (session-value :user))
-		      (code-string (post-parameter "code"))
-		      (active-step (post-parameter "step")))
-    (docker:run-container (docker:create-container :command code-string))))
+  (alexandria:if-let ((username (session-value :user)))
+    (let* ((active-step (post-parameter "step"))
+	   (solution (model:get-solution active-step))
+	   (user-code (post-parameter "code"))
+	   (code-string
+	    (format nil "(list ~a (~a ~a))"
+		    user-code solution user-code)))
+      (docker:run-container (docker:create-container :command code-string)))))
 
 (restas:define-route experiment ("/experiment")
   (if (session-value :user)
@@ -107,29 +111,45 @@
 			    (:div :id "jmpress"
 				  (dolist (x (load-steps))
 				    (format out x))))
+		      (:input :id "activestep" :type "hidden" :value "#step-1")
 		      (:div :class "row-fluid"
-			    "Presiona Ctrl+Enter o el bot&oacute;n \"Evaluar\" para evaluar tu c&oacute;digo.")
+			    "Presiona Ctrl+Enter o el bot&oacute;n \"Evaluar\" para evaluar tu c&oacute;digo."
+			    (:button :class "next" "Siguiente"))
 		      (:div :class "row-fluid"
-
 			    (:div :class "span6" :id "inputAreaContainer"
 				  (:textarea :id "inputArea" :name "codeArea" ""))
 			    (:div :class "span6" :id "reviewAreaContainer"
-				  (:textarea :id "reviewArea" :name "reviewArea"))))
+				  (:textarea :id "reviewArea" :name "reviewArea")))		      
+		      )
 		(:script :src "/js/main/its.js"))))
       (restas:redirect *fail-authenticated-user-uri*)))
 
+
+
 (defun load-steps ()
   (let ((exercises (model:get-exercises))
-	(x -2000))
+	(x -2000)
+	(step 0))
     (mapcar (lambda (exercise)
-	      (let ((title (first exercise))
-		    (content (second exercise))
-		    (coding? (third exercise)))
+	      (let ((title (second exercise))
+		    (content (third exercise))
+		    (coding? (fourth exercise)))
 		(cl-who:with-html-output-to-string (out)
 		  (:div :class "step" :data-x (incf x 2000) :data-y 0
-			(format out "~a~a"
+			(format out "~a~a~a"
 				(format nil "<h1>~a</h1>" title)
-				(format nil "<p>~a</p>" content)))
+				(format nil "<p>~a</p>" content)
+				(format nil "
+<script>
+$(function() {
+$('#step-~a')
+	.on('enterStep', function(event) {
+           $('#activestep').val('#step-~a')
+	})
+})
+</script>" (incf step) step)
+
+				))
 		  )))
 	    exercises)))
 

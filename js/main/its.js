@@ -22,4 +22,3 @@ var reviewArea = CodeMirror.fromTextArea(
 //set cursor on last line
 reviewArea.getDoc().setCursor(reviewArea.getDoc().lastLine(), reviewArea.getTokenAt({line: reviewArea.getDoc().lastLine(), char: 0}, true).end);
 
-
