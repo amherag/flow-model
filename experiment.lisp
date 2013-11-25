@@ -81,10 +81,24 @@
     (let* ((active-step (post-parameter "step"))
 	   (solution (model:get-solution active-step))
 	   (user-code (post-parameter "code"))
-	   (code-string
-	    (format nil "(list ~a (~a ~a))"
-		    user-code solution user-code)))
-      (docker:run-container (docker:create-container :command code-string)))))
+	   (test-result
+	    (format nil "(~a ~a)"
+		    solution user-code)))
+      
+
+      (format nil "~a~%~%~a"
+	      (docker:run-container (docker:create-container :command user-code))
+	      (if (docker:run-container (docker:create-container :command test-result))
+		  "¡Bien hecho!"
+		  "Intenta de nuevo"))
+      )))
+
+(let ((results (read-from-string (docker:run-container (docker:create-container :command code-string)))))
+	(format nil "~s~%~a" (first results)
+		(if (second results)
+		    (progn "¡Bien hecho!"
+			   (second results))
+		    "Intenta de nuevo")))
 
 (restas:define-route experiment ("/experiment")
   (if (session-value :user)
@@ -123,7 +137,6 @@
 		      )
 		(:script :src "/js/main/its.js"))))
       (restas:redirect *fail-authenticated-user-uri*)))
-
 
 
 (defun load-steps ()
