@@ -1,6 +1,10 @@
 $(function() {
 
-    $('#jmpress').jmpress();
+    $('#jmpress').jmpress({
+	hash: {
+	    use: false
+	}
+    });
 
     $(".next").click(function(event){
 	$('#jmpress').jmpress('next');
@@ -18,11 +22,7 @@ $(function() {
     });
 
     $('.step')
-	.on('enterStep', function(event) {
-
-	})
 	.on('leaveStep', function(event) {
-
 	    inputArea.setValue("");
 	    reviewArea.setValue("");
 	});

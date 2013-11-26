@@ -2,7 +2,6 @@ var inputArea = CodeMirror.fromTextArea(
     document.getElementById("inputArea"),
     {lineNumbers: true,
      theme: "eclipse",
-     autofocus: true,
      lineWrapping: true,
      smartIndent: true,
      styleActiveLine: true,

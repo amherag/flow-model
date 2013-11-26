@@ -7,6 +7,7 @@
 		     get-solution
 		     get-exercises
 		     post-user
+		     post-exercise
 		     hash-password
 		     ))
 (in-package :model)
@@ -26,14 +27,9 @@
   (sqlite:execute-non-query *db* "INSERT INTO users (username, password) VALUES (?, ?)"
 			    username (hash-password password)))
 
-(defun post-exercise (title exercise solution &optional (coding nil))
-  (sqlite:execute-non-query *db* "INSERT INTO exercises (title, content, coding, solution) VALUES (?, ?, ?, ?)"
-			    title exercise (if coding "true" "false") solution))
-
-;;(post-user "amherag" "password")
-;;(post-exercise "Ejercicio 1" "Crea una lista de tres numeros." "(fn (x) (and (list? x) (for-all number? x) (= (length x) 3)))" t)
-;;(post-exercise "Ejercicio 2" "Crea una funcion que sume dos numeros." "(fn (x) (and (lambda? x) (= (x 5 7) (+ 5 7))))" nil)
-
+(defun post-exercise (step title exercise solution &optional (coding nil))
+  (sqlite:execute-non-query *db* "INSERT INTO exercises (step, title, content, coding, solution) VALUES (?, ?, ?, ?, ?)"
+			    step title exercise (if coding "true" "false") solution))
 
 (defun get-solution (step)
   (sqlite:execute-single *db* "SELECT solution FROM exercises WHERE step = ?" step))
@@ -42,12 +38,13 @@
 
 (defun get-exercises ()
   "It gets ALL the exercises for now."
-  (sqlite:execute-to-list *db* "SELECT * FROM exercises ORDER BY rowid"))
+  (sqlite:execute-to-list *db* "SELECT * FROM exercises ORDER BY step"))
 
 ;;(get-exercises)
 
 (let ((connected? nil))
   "Very basic singleton."
+
   (defun disconnect-db ()
     (when connected?
       (sqlite:disconnect *db*)
@@ -63,6 +60,8 @@
 
 (defun init-db ()
   (sqlite:execute-non-query *db* "CREATE TABLE users(username text, password text)")
-  (sqlite:execute-non-query *db* "CREATE TABLE exercises(step text, title text, content text, coding bool, solution text)"))
+  (sqlite:execute-non-query *db* "CREATE TABLE exercises(step integer, title text, content text, coding bool, solution text)"))
 
 ;;(init-db)
+
+(connect-db)

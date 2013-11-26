@@ -84,21 +84,17 @@
 	   (test-result
 	    (format nil "(~a ~a)"
 		    solution user-code)))
-      
-
       (format nil "~a~%~%~a"
-	      (docker:run-container (docker:create-container :command user-code))
-	      (if (docker:run-container (docker:create-container :command test-result))
-		  "¡Bien hecho!"
-		  "Intenta de nuevo"))
+	      (let ((r (docker:run-container (docker:create-container :command test-result))))
+		(cond ((string= r "true") "¡Bien hecho!")
+		      ;;((string= r "nil") "Intenta de nuevo")
+		      (t "Intenta de nuevo")))
+	      (docker:run-container (docker:create-container :command user-code)))
       )))
 
-(let ((results (read-from-string (docker:run-container (docker:create-container :command code-string)))))
-	(format nil "~s~%~a" (first results)
-		(if (second results)
-		    (progn "¡Bien hecho!"
-			   (second results))
-		    "Intenta de nuevo")))
+(if (read-from-string (docker:run-container (docker:create-container :command test-result)))
+		  "¡Bien hecho!"
+		  "Intenta de nuevo")
 
 (restas:define-route experiment ("/experiment")
   (if (session-value :user)
@@ -125,19 +121,19 @@
 			    (:div :id "jmpress"
 				  (dolist (x (load-steps))
 				    (format out x))))
-		      (:input :id "activestep" :type "hidden" :value "#step-1")
-		      (:div :class "row-fluid"
-			    "Presiona Ctrl+Enter o el bot&oacute;n \"Evaluar\" para evaluar tu c&oacute;digo."
-			    (:button :class "next" "Siguiente"))
-		      (:div :class "row-fluid"
-			    (:div :class "span6" :id "inputAreaContainer"
-				  (:textarea :id "inputArea" :name "codeArea" ""))
-			    (:div :class "span6" :id "reviewAreaContainer"
-				  (:textarea :id "reviewArea" :name "reviewArea")))		      
+		      (:input :id "activestep" :type "hidden" :value "1")
+		      (:div :id "editor" :style "visibility: hidden;"
+			     (:div :class "row-fluid" :style "height: 30px; padding-top: 25px;"
+				   "Presiona Ctrl+Enter o el bot&oacute;n \"Evaluar\" para evaluar tu c&oacute;digo."
+				   )
+			     (:div :class "row-fluid"
+				   (:div :class "span6" :id "inputAreaContainer"
+					 (:textarea :id "inputArea" :name "codeArea" ""))
+				   (:div :class "span6" :id "reviewAreaContainer"
+					 (:textarea :id "reviewArea" :name "reviewArea"))))
 		      )
 		(:script :src "/js/main/its.js"))))
       (restas:redirect *fail-authenticated-user-uri*)))
-
 
 (defun load-steps ()
   (let ((exercises (model:get-exercises))
@@ -157,11 +153,16 @@
 $(function() {
 $('#step-~a')
 	.on('enterStep', function(event) {
-           $('#activestep').val('#step-~a')
+           $('#activestep').val('~a');
+if(~a) {
+           $('#editor').css('visibility', 'visible');
+           inputArea.focus();
+} else {
+           $('#editor').css('visibility', 'hidden');
+}
 	})
 })
-</script>" (incf step) step)
-
+</script>" (incf step) step coding?)
 				))
 		  )))
 	    exercises)))
@@ -217,4 +218,11 @@ $('#step-~a')
 (defun step3 ()
   "Como segundo ejercicio, imprimiremos el cl&aacute;sico \"Hola Mundo!\". Escribe (println \"Hola Mundo!\") en la caja de texto de abajo y despu&eacute;s presiona la combinaci&oacute;n de teclas \"Ctrl+Enter\".")
 
-
+#|
+(post-user "amherag" "password")
+(model:post-exercise "1" "Introducci&oacute;n"
+"newLISP es un lenguaje interpretado, de prop&oacute;sito general, de la familia de los lenguajes Lisp. Trabaja especialmente bien para aplicaciones de inteligencia artificial, simulaci&oacute;n, procesamiento de lenguaje natural, big data, aprendizaje autom&aacute;tico y estad&iacute;stica. Debido a sus requerimientos bajos en recursos, newLISP es excelente para aplicaciones de sistemas embebidos. La mayor&iacute;a de las funciones que podr&iacute;as necesitar ya est&aacute;n incluidas en el lenguaje base. Esto incluye funciones de networking, procesamiento distribuido y multin&uacute;cleo, y estad&iacute;stica Bayesiana." "" nil)
+(post-exercise "2" "Ejercicio 1" "Crea una lista de tres numeros." "(fn (x) (and (list? x) (for-all number? x) (= (length x) 3)))" t)
+(post-exercise "3" "Ejercicio 2" "Crea una funcion que sume dos numeros." "(fn (x) (and (lambda? x) (= (x 5 7) (+ 5 7))))" nil)
+(post-exercise "4" "Ejercicio 2" "Crea una funcion que sume dos numeros." "(fn (x) (and (lambda? x) (= (x 5 7) (+ 5 7))))" nil)
+|#

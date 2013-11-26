@@ -14,7 +14,7 @@
 		},
 		success: function (data) {
 		    reviewArea.setValue((data).trim());
-		    inputArea.setValue("");
+		    //inputArea.setValue("");
 		    reviewArea.getDoc().setCursor(reviewArea.getDoc().lastLine(), reviewArea.getTokenAt({line: reviewArea.getDoc().lastLine(), char: 0}, true).end);
 		},
 		dataType: "html"});
