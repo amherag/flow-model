@@ -1,10 +1,12 @@
 (ql:quickload "sqlite")
+(ql:quickload "cl-redis")
 (ql:quickload "ironclad")
-(defpackage :model (:use :cl)
+(defpackage :model (:use :cl :redis)
 	    (:export connect-db
 		     disconnect-db
 		     get-user/password
 		     get-solution
+		     post-result
 		     get-exercises
 		     post-user
 		     post-exercise
@@ -22,10 +24,6 @@
 
 (defun get-user/password (username)
   (sqlite:execute-single *db* "SELECT password FROM users WHERE username = ?" username))
-
-(defun post-user (username password)
-  (sqlite:execute-non-query *db* "INSERT INTO users (username, password) VALUES (?, ?)"
-			    username (hash-password password)))
 
 (defun post-exercise (step title exercise solution &optional (coding nil))
   (sqlite:execute-non-query *db* "INSERT INTO exercises (step, title, content, coding, solution) VALUES (?, ?, ?, ?, ?)"
@@ -55,13 +53,25 @@
       (defparameter *db* (sqlite:connect path))
       (setf connected? t))))
 
+(defun post-result (result)
+  ;;(sqlite:execute-non-query *db* "INSERT INTO results(result) VALUES (?)" result)
+  (red-set (random 99999999999) result))
+
 ;;(connect-db)
 ;;(disconnect-db)
 
 (defun init-db ()
-  (sqlite:execute-non-query *db* "CREATE TABLE users(username text, password text)")
+  (sqlite:execute-non-query *db* "CREATE TABLE results(result text)")
   (sqlite:execute-non-query *db* "CREATE TABLE exercises(step integer, title text, content text, coding bool, solution text)"))
+
+;;(red-save)
 
 ;;(init-db)
 
+;;(redis:connect)
+;;(redis:disconnect)
 (connect-db)
+
+;;(apply #'redis:red-mget (redis:red-keys "*"))
+;;(redis:red-hgetall "63401152795")
+;;(redis:red-mget 
